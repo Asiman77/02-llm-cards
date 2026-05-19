@@ -1,0 +1,467 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLM Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+          --color-background: #0d0d0d;
+          --color-surface: #1a1a1a;
+          --color-border: #2e2e2e;
+          --color-text-primary: #f0f0f0;
+          --color-text-secondary: #888888;
+          --color-accent: #7c3aed;
+          --color-accent-hover: #6d28d9;
+          --color-success: #22c55e;
+          --color-danger: #ef4444;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        body {
+          background-color: var(--color-background);
+          color: var(--color-text-primary);
+          font-family: 'Inter', sans-serif;
+          line-height: 1.6;
+        }
+
+        header {
+          padding: 2rem;
+          border-bottom: 1px solid var(--color-border);
+          text-align: center;
+        }
+
+        header p {
+          color: var(--color-text-secondary);
+        }
+
+        nav {
+          display: flex;
+          justify-content: center;
+          gap: 2rem;
+          padding: 1rem;
+          border-bottom: 1px solid var(--color-border);
+          flex-wrap: wrap;
+        }
+
+        nav a {
+          text-decoration: none;
+          color: var(--color-text-primary);
+          transition: 0.3s;
+        }
+
+        nav a:hover {
+          color: var(--color-accent);
+        }
+
+        main {
+          width: 90%;
+          max-width: 1200px;
+          margin: auto;
+          padding: 2rem 0;
+        }
+
+        section {
+          margin-bottom: 4rem;
+        }
+
+        h2 {
+          margin-bottom: 1rem;
+        }
+
+        p {
+          color: var(--color-text-secondary);
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 2rem;
+        }
+
+        th,
+        td {
+          border: 1px solid var(--color-border);
+          padding: 1rem;
+          text-align: center;
+        }
+
+        th {
+          background-color: var(--color-accent);
+        }
+
+        .yes {
+          color: var(--color-success);
+          font-weight: bold;
+        }
+
+        .no {
+          color: var(--color-danger);
+          font-weight: bold;
+        }
+
+        .cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 2rem;
+          margin-top: 2rem;
+        }
+
+        .card {
+          background-color: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: 16px;
+          padding: 1.5rem;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+          transform: translateY(-8px);
+        }
+
+        .card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        }
+
+        .card-provider {
+          color: var(--color-text-secondary);
+          font-size: 0.9rem;
+        }
+
+        .card-tagline {
+          margin: 1rem 0;
+        }
+
+        .card-specs {
+          list-style: none;
+        }
+
+        .card-specs li {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.8rem;
+        }
+
+        .reasoning-yes,
+        .reasoning-no {
+          padding: 0.3rem 0.8rem;
+          border-radius: 999px;
+          font-size: 0.8rem;
+        }
+
+        .reasoning-yes {
+          background-color: var(--color-success);
+          color: black;
+        }
+
+        .reasoning-no {
+          background-color: var(--color-danger);
+          color: white;
+        }
+
+        .timeline {
+          list-style: none;
+          padding: 0;
+          position: relative;
+          margin-top: 3rem;
+        }
+
+        .timeline::before {
+          content: "";
+          position: absolute;
+          left: 20px;
+          top: 0;
+          bottom: 0;
+          width: 2px;
+          background-color: var(--color-accent);
+        }
+
+        .timeline-step {
+          position: relative;
+          margin-bottom: 3rem;
+          animation: fadeInUp 0.7s ease forwards;
+          opacity: 0;
+        }
+
+        .timeline-step:nth-child(1) { animation-delay: 0.1s; }
+        .timeline-step:nth-child(2) { animation-delay: 0.2s; }
+        .timeline-step:nth-child(3) { animation-delay: 0.3s; }
+        .timeline-step:nth-child(4) { animation-delay: 0.4s; }
+        .timeline-step:nth-child(5) { animation-delay: 0.5s; }
+        .timeline-step:nth-child(6) { animation-delay: 0.6s; }
+
+        .step-marker {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background-color: var(--color-accent);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          position: absolute;
+          left: 0;
+        }
+
+        .step-content {
+          margin-left: 70px;
+          background-color: var(--color-surface);
+          border: 1px solid var(--color-border);
+          padding: 1.5rem;
+          border-radius: 12px;
+        }
+
+        footer {
+          border-top: 1px solid var(--color-border);
+          padding: 1.5rem;
+          text-align: center;
+          font-size: 0.9rem;
+          color: var(--color-text-secondary);
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>LLM Dashboard</h1>
+    <p>Compare modern Large Language Models</p>
+</header>
+
+<nav>
+    <a href="#what-is-llm">What is LLM?</a>
+    <a href="#what-is-token">What is Token?</a>
+    <a href="#comparison">Comparison</a>
+    <a href="#model-cards">Model Cards</a>
+    <a href="#timeline">How It Works</a>
+</nav>
+
+<main>
+
+    <section id="what-is-llm">
+        <h2>What is an LLM?</h2>
+        <p>
+            A Large Language Model (LLM) is an AI system trained on massive text datasets.
+            It can understand prompts, answer questions, generate text, summarize content,
+            and even write code.
+        </p>
+    </section>
+
+    <section id="what-is-token">
+        <h2>What is a Token?</h2>
+        <p>
+            Tokens are small pieces of text processed by an AI model.
+            Pricing and context windows are usually measured using tokens.
+        </p>
+    </section>
+
+    <section id="comparison">
+        <h2>LLM Comparison Table</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Model</th>
+                <th>Provider</th>
+                <th>Context</th>
+                <th>Reasoning</th>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>GPT-4o</td>
+                <td>OpenAI</td>
+                <td>128K</td>
+                <td class="yes">✓</td>
+                <td>$5 / 1M</td>
+                <td>$15 / 1M</td>
+            </tr>
+
+            <tr>
+                <td>Claude Sonnet 4</td>
+                <td>Anthropic</td>
+                <td>200K</td>
+                <td class="yes">✓</td>
+                <td>$3 / 1M</td>
+                <td>$15 / 1M</td>
+            </tr>
+
+            <tr>
+                <td>Gemini 1.5 Pro</td>
+                <td>Google</td>
+                <td>1M</td>
+                <td class="yes">✓</td>
+                <td>$3.5 / 1M</td>
+                <td>$10.5 / 1M</td>
+            </tr>
+
+            <tr>
+                <td>Mistral Large</td>
+                <td>Mistral AI</td>
+                <td>128K</td>
+                <td class="no">✗</td>
+                <td>$4 / 1M</td>
+                <td>$12 / 1M</td>
+            </tr>
+
+            <tr>
+                <td>Llama 3 70B</td>
+                <td>Meta</td>
+                <td>128K</td>
+                <td class="no">✗</td>
+                <td>$1 / 1M</td>
+                <td>$2 / 1M</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="model-cards">
+        <h2>Model Cards</h2>
+
+        <div class="cards-grid">
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-provider">OpenAI</span>
+                    <span class="reasoning-yes">Reasoning</span>
+                </div>
+
+                <h3>GPT-4o</h3>
+                <p class="card-tagline">Best for multimodal and real-time interactions.</p>
+
+                <ul class="card-specs">
+                    <li><span>Context</span><span>128K</span></li>
+                    <li><span>Input</span><span>$5 / 1M</span></li>
+                    <li><span>Output</span><span>$15 / 1M</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-provider">Anthropic</span>
+                    <span class="reasoning-yes">Reasoning</span>
+                </div>
+
+                <h3>Claude Sonnet 4</h3>
+                <p class="card-tagline">Excellent for long documents and analysis.</p>
+
+                <ul class="card-specs">
+                    <li><span>Context</span><span>200K</span></li>
+                    <li><span>Input</span><span>$3 / 1M</span></li>
+                    <li><span>Output</span><span>$15 / 1M</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-provider">Google</span>
+                    <span class="reasoning-yes">Reasoning</span>
+                </div>
+
+                <h3>Gemini 1.5 Pro</h3>
+                <p class="card-tagline">Powerful for massive context processing.</p>
+
+                <ul class="card-specs">
+                    <li><span>Context</span><span>1M</span></li>
+                    <li><span>Input</span><span>$3.5 / 1M</span></li>
+                    <li><span>Output</span><span>$10.5 / 1M</span></li>
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="timeline">
+        <h2>How an LLM Works</h2>
+
+        <ol class="timeline">
+
+            <li class="timeline-step">
+                <div class="step-marker">1</div>
+                <div class="step-content">
+                    <h3>User Input</h3>
+                    <p>The user writes a prompt into the interface.</p>
+                </div>
+            </li>
+
+            <li class="timeline-step">
+                <div class="step-marker">2</div>
+                <div class="step-content">
+                    <h3>Tokenisation</h3>
+                    <p>The prompt is split into smaller text tokens.</p>
+                </div>
+            </li>
+
+            <li class="timeline-step">
+                <div class="step-marker">3</div>
+                <div class="step-content">
+                    <h3>Embedding</h3>
+                    <p>Tokens are converted into vector representations.</p>
+                </div>
+            </li>
+
+            <li class="timeline-step">
+                <div class="step-marker">4</div>
+                <div class="step-content">
+                    <h3>Attention Layers</h3>
+                    <p>The model analyzes relationships between tokens.</p>
+                </div>
+            </li>
+
+            <li class="timeline-step">
+                <div class="step-marker">5</div>
+                <div class="step-content">
+                    <h3>Prediction</h3>
+                    <p>The AI predicts the next most likely token.</p>
+                </div>
+            </li>
+
+            <li class="timeline-step">
+                <div class="step-marker">6</div>
+                <div class="step-content">
+                    <h3>Output Generation</h3>
+                    <p>The generated tokens become the final response.</p>
+                </div>
+            </li>
+
+        </ol>
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 LLM Dashboard Project</p>
+</footer>
+
+</body>
+</html>
